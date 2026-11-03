@@ -54,8 +54,8 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 @media(min-width:900px){
   .grid{grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr);}
 }
-.sticky-viz {position: sticky;top: 0;z-index: 10;background: var(--bg);padding-top: 10px;}
-.fig-wrap{display:flex;gap:16px;align-items:stretch;width:100%;margin-bottom:16px;height: 460px; }
+.sticky-viz {position:relative;background:var(--bg);padding-top:10px;}
+.fig-wrap{display:flex;gap:16px;align-items:stretch;width:100%;margin-bottom:16px;height:clamp(420px,58vh,650px);}
 .fig-wrap > * {min-width:0;background: var(--bg);border-radius: 8px;overflow: hidden; position: relative;}
 #fig {flex: 1.6; width: 100%;height: 100%;object-fit: contain;}
 #webgl-container {flex: 0.9; display: flex;justify-content: center;align-items: center; min-height: 400px;}
@@ -106,6 +106,8 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 }
 
 .report-tools{margin-top:16px}.report-tools h2{margin-top:0}.report-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.report-item{border:1px solid var(--line);border-left:6px solid var(--acc);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--card)}.report-item textarea{width:100%;min-height:70px;font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}.report-item select,.report-item input{font:inherit;max-width:100%;margin:4px 8px 4px 0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px}.report-item .small{font-size:.82rem;color:var(--mute)}.confirmed{border-left-color:var(--str)}.danger-action{border-color:var(--cmp)}
+
+.info-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;position:sticky;top:8px;z-index:5}.info-tabs button{flex:1;min-width:90px;padding:8px 10px}.info-tabs button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:var(--card);font-weight:700}.info-panel>h2{margin-top:8px}.info-panel[hidden]{display:none}.info-panel{min-width:0}.report-tools{margin-top:0}.bm{max-height:calc(100vh - 150px);overflow:auto;align-items:flex-start}.bm>div{min-width:0}.bm svg{position:sticky;top:0;background:var(--card);padding:4px}
 </style>
 </head>
 <body>
@@ -134,6 +136,32 @@ h2{font-size:1.15rem;margin:20px 0 8px}
     <section class="card" aria-label="Controles de movimiento" style="margin-top: 18px;">
       <label style="font-weight:400"><input type="checkbox" id="sed"> Mostrar consideraciones generales sobre hipermovilidad</label>
 
+      
+      <div class="btns" id="pm"><button data-h="rot" aria-pressed="true">Izquierda/derecha: rotación</button><button data-h="tilt" aria-pressed="false">Izquierda/derecha: inclinación</button></div>
+      <div id="pad" tabindex="0" role="group" aria-label="Control de dirección del cuello. Arrastra el punto o usa las flechas del teclado."><i id="dot"></i><b class="pl u">Extensión (arriba)</b><b class="pl d">Flexión (abajo)</b><b class="pl l">Izq.</b><b class="pl r">Der.</b></div>
+      <p class="cap">Arrastra el punto hacia un lado, arriba, abajo o en diagonal. Los deslizadores de abajo se mueven contigo y sirven para ajustar con precisión. El movimiento diagonal combina ejes; no es una articulación adicional.</p>
+      <div id="sl"></div>
+      <p class="cap" id="deg"></p><p class="cap" id="pose" aria-live="polite"></p><p class="cap">Movimientos incluidos: flexión, extensión, rotación axial, inclinación lateral y traslación anterior/retracción. Las diagonales son combinaciones de esos ejes.</p>
+      <div class="lg"><span><i style="background:var(--vago)"></i>Trayecto aproximado del vago</span><span><i style="background:var(--art)"></i>Trayecto aproximado de la arteria vertebral</span><span><i style="background:#d8b84e"></i>Médula</span><span><i style="background:var(--acc)"></i>Músculo y raíces</span><span><i style="background:var(--bone)"></i>Hueso</span></div>
+      <p class="cap">Los círculos numerados señalan carga o tensión (ámbar) y posible estrechamiento o compromiso teórico (rojo). No representan una compresión medida. El número coincide con la lista; la silueta punteada es la posición neutra.</p>
+    </section>
+  </div>
+
+  <div>
+    <div class="info-tabs" role="tablist" aria-label="Información del visor">
+      <button type="button" role="tab" aria-selected="true" aria-controls="panel-neck" id="tab-neck" data-panel="panel-neck">Cuello</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="panel-body" id="tab-body" data-panel="panel-body">Mapa corporal</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="panel-reports" id="tab-reports" data-panel="panel-reports">Informes</button>
+    </div>
+    <section id="panel-neck" class="info-panel" role="tabpanel" aria-labelledby="tab-neck" aria-live="polite">
+      <h2>Estructuras del cuello</h2>
+      <div id="out"></div>
+    </section>
+    <section id="panel-body" class="info-panel" role="tabpanel" aria-labelledby="tab-body" hidden>
+      <h2>Otras partes del cuerpo</h2>
+      <div class="card bm"><svg id="body" viewBox="0 0 120 300" role="img" aria-label="Silueta del cuerpo con las zonas que pueden responder"></svg><div id="bp"></div></div>
+    </section>
+    <section id="panel-reports" class="info-panel" role="tabpanel" aria-labelledby="tab-reports" hidden>
       <section class="card report-tools" aria-labelledby="reports-title">
         <h2 id="reports-title">Informes personales (procesamiento local)</h2>
         <p class="cap">Los archivos se procesan en este navegador y no se suben a un servidor de esta aplicación. El visor no diagnostica: organiza posibles hallazgos para que los revises y confirmes.</p>
@@ -147,21 +175,7 @@ h2{font-size:1.15rem;margin:20px 0 8px}
         <div id="report-review"></div>
         <div id="confirmed-findings"></div>
       </section>
-      <div class="btns" id="pm"><button data-h="rot" aria-pressed="true">Izquierda/derecha: rotación</button><button data-h="tilt" aria-pressed="false">Izquierda/derecha: inclinación</button></div>
-      <div id="pad" tabindex="0" role="group" aria-label="Control de dirección del cuello. Arrastra el punto o usa las flechas del teclado."><i id="dot"></i><b class="pl u">Extensión (arriba)</b><b class="pl d">Flexión (abajo)</b><b class="pl l">Izq.</b><b class="pl r">Der.</b></div>
-      <p class="cap">Arrastra el punto hacia un lado, arriba, abajo o en diagonal. Los deslizadores de abajo se mueven contigo y sirven para ajustar con precisión. El movimiento diagonal combina ejes; no es una articulación adicional.</p>
-      <div id="sl"></div>
-      <p class="cap" id="deg"></p><p class="cap" id="pose" aria-live="polite"></p><p class="cap">Movimientos incluidos: flexión, extensión, rotación axial, inclinación lateral y traslación anterior/retracción. Las diagonales son combinaciones de esos ejes.</p>
-      <div class="lg"><span><i style="background:var(--vago)"></i>Trayecto aproximado del vago</span><span><i style="background:var(--art)"></i>Trayecto aproximado de la arteria vertebral</span><span><i style="background:#d8b84e"></i>Médula</span><span><i style="background:var(--acc)"></i>Músculo y raíces</span><span><i style="background:var(--bone)"></i>Hueso</span></div>
-      <p class="cap">Los círculos numerados señalan carga o tensión (ámbar) y posible estrechamiento o compromiso teórico (rojo). No representan una compresión medida. El número coincide con la lista; la silueta punteada es la posición neutra.</p>
     </section>
-  </div>
-
-  <div>
-    <h2>Estructuras del cuello</h2>
-    <section aria-live="polite"><div id="out"></div></section>
-    <h2>Otras partes del cuerpo</h2>
-    <div class="card bm"><svg id="body" viewBox="0 0 120 300" role="img" aria-label="Silueta del cuerpo con las zonas que pueden responder"></svg><div id="bp"></div></div>
   </div>
 </div>
 
@@ -192,7 +206,7 @@ const container = document.getElementById('webgl-container');
 const loadingMsg = document.getElementById('loading-msg');
 
 const MOV={
-flex:{n:"Flexión (mentón al pecho)",v:"side",max:35,cap:"Vista lateral. La cara mira a la derecha. (Limitado a 35° por anterolistesis C2-C4)"},
+flex:{n:"Flexión (mentón al pecho)",v:"side",max:35,cap:"Vista lateral. La cara mira a la derecha. (Rango ilustrativo, no es un límite clínico)"},
 ext:{n:"Extensión (mirar arriba)",v:"side",max:50,cap:"Vista lateral. La cara mira a la derecha."},
 prot:{n:"Traslación anterior/posterior de la cabeza",v:"side",max:100,cap:"Vista lateral. Desplazamiento de la cabeza hacia delante o retracción hacia atrás."},
 rot:{n:"Rotación",v:"top",max:80,cap:"Vista desde arriba. La nariz apunta hacia arriba del dibujo."},
@@ -528,6 +542,16 @@ sliders();render();
 </script>
 
 <script type="module">
+/* Pestañas informativas: solo reorganizan la presentación; no cambian cálculos ni controles. */
+for (const tab of document.querySelectorAll(".info-tabs [role=tab]")) {
+  tab.addEventListener("click", () => {
+    for (const t of document.querySelectorAll(".info-tabs [role=tab]")) {
+      const active = t === tab; t.setAttribute("aria-selected", String(active));
+      const panel = document.getElementById(t.dataset.panel); if (panel) panel.hidden = !active;
+    }
+  });
+}
+
 /* Organizador local de informes. No envía documentos ni realiza diagnóstico. */
 const STORAGE_KEY = "visor-cervical-educativo.profile.v1";
 const $r = id => document.getElementById(id);
