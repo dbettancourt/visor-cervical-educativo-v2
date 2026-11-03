@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa del movimiento cervical 3D - Personalizado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf0f2;--card:#fff;--ink:#12242c;--mute:#52656e;--line:#c9d6db;--acc:#0b6b73;--str:#9a5b00;--strbg:#fff0d6;--cmp:#a3211b;--cmpbg:#fde3e1;--ok:#e4ebee;--vago:#7a3fb0;--art:#c2410c;--bone:#d9e2e6;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a1f;--card:#16262d;--ink:#e6f0f3;--mute:#9db1b9;--line:#2b414a;--acc:#4fc3cc;--str:#f5b84a;--strbg:#3a2c0e;--cmp:#ff8a80;--cmpbg:#40201e;--ok:#1f333b;--vago:#c79bf0;--art:#ff9a62;--bone:#2b414a}}
+:root[data-theme="dark"]{--bg:#0e1a1f;--card:#16262d;--ink:#e6f0f3;--mute:#9db1b9;--line:#2b414a;--acc:#4fc3cc;--str:#f5b84a;--strbg:#3a2c0e;--cmp:#ff8a80;--cmpbg:#40201e;--ok:#1f333b;--vago:#c79bf0;--art:#ff9a62;--bone:#2b414a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif}
+
+main{max-width:1400px;margin:0 auto;padding:20px 24px 40px}
+h1{font-size:1.7rem;margin:0 0 4px;line-height:1.2}
+.sub{color:var(--mute);margin:0 0 18px;max-width:60ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+button{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--card);font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.fig{width:100%;height:100%;display:block;background:var(--bg);border-radius:8px}
+.cap{font-size:.9rem;color:var(--mute);margin:6px 0 10px}
+label{display:block;font-weight:700;margin:10px 0 4px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.85rem;color:var(--mute);margin-top:8px}
+.lg i{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.s{border:1px solid var(--line);border-left-width:6px;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:var(--card)}
+.s h3{margin:0;font-size:1.05rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.tag{font-size:.8rem;font-weight:700;padding:2px 8px;border-radius:99px}
+.s p{margin:4px 0 0;color:var(--mute);font-size:.95rem}
+.s0{border-left-color:var(--line)}.s0 .tag{background:var(--ok)}
+.s1{border-left-color:var(--str)}.s1 .tag{background:var(--strbg);color:var(--str)}
+.s2{border-left-color:var(--cmp)}.s2 .tag{background:var(--cmpbg);color:var(--cmp)}
+.note{margin-top:16px;font-size:.9rem;color:var(--mute);max-width:75ch}
+.bd{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--card);font-size:.8rem;margin-right:8px}
+@keyframes pl{50%{stroke-width:5}}.mk2 circle{animation:pl 1.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.mk2 circle{animation:none}}
+.ax{margin:8px 0 14px}.ends{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mute)}
+#pad{position:relative;width:200px;max-width:100%;aspect-ratio:1;margin:0 auto 10px;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat,linear-gradient(var(--line),var(--line)) center/100% 1px no-repeat,var(--bg);border:2px solid var(--line);border-radius:12px;touch-action:none;cursor:grab}
+#pad:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#dot{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--acc);border:3px solid var(--card);box-shadow:0 0 0 1px var(--acc)}
+.pl{position:absolute;font-size:.72rem;color:var(--mute);font-weight:400;pointer-events:none}
+.pl.u{top:3px;left:50%;transform:translateX(-50%)}.pl.d{bottom:3px;left:50%;transform:translateX(-50%)}.pl.l{left:6px;top:50%;margin-top:-18px}.pl.r{right:6px;top:50%;margin-top:-18px}
+#pm{justify-content:center}
+h2{font-size:1.15rem;margin:20px 0 8px}
+.bm{display:flex;gap:14px;align-items:flex-start}.bm svg{width:110px;flex:none}.bm>div{flex:1;min-width:0}
+#pr div{padding-left:10px;border-left:3px solid var(--cmp);margin-top:4px}
+
+.grid{display:grid;grid-template-columns: 1fr;gap:24px;align-items:start}
+@media(min-width:900px){
+  .grid{grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr);}
+}
+.sticky-viz {position: sticky;top: 0;z-index: 10;background: var(--bg);padding-top: 10px;}
+.fig-wrap{display:flex;gap:16px;align-items:stretch;width:100%;margin-bottom:16px;height: 460px; }
+.fig-wrap > * {min-width:0;background: var(--bg);border-radius: 8px;overflow: hidden; position: relative;}
+#fig {flex: 1.6; width: 100%;height: 100%;object-fit: contain;}
+#webgl-container {flex: 0.9; display: flex;justify-content: center;align-items: center; min-height: 400px;}
+
+/* Asegurar que el canvas de Three.js esté por encima del mensaje de carga */
+#webgl-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1;
+}
+#loading-msg {
+    position: absolute;
+    z-index: 0;
+    color: var(--mute);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 20px;
+}
+
+@media(max-width:760px){
+  .fig-wrap{flex-direction:column; height: 650px;}
+  #fig { flex: 1; width:100%; aspect-ratio: auto;}
+  #webgl-container { flex: 1; width:100%;}
+  .bm{flex-direction:column;align-items:center}.bm svg{width:90px}
+  #pr{font-size:.8rem;max-height:18vh;overflow:auto}
+}
+.clinical-warning {
+    background-color: var(--cmpbg);
+    color: var(--cmp);
+    border: 2px solid var(--cmp);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    font-weight: bold;
+    display: none;
+}
+.clinical-warning.active {
+    display: block;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(163, 33, 27, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(163, 33, 27, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(163, 33, 27, 0); }
+}
+
+.report-tools{margin-top:16px}.report-tools h2{margin-top:0}.report-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.report-item{border:1px solid var(--line);border-left:6px solid var(--acc);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--card)}.report-item textarea{width:100%;min-height:70px;font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}.report-item select,.report-item input{font:inherit;max-width:100%;margin:4px 8px 4px 0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px}.report-item .small{font-size:.82rem;color:var(--mute)}.confirmed{border-left-color:var(--str)}.danger-action{border-color:var(--cmp)}
+</style>
+</head>
+<body>
+<main>
+<h1>Mapa del movimiento cervical - Personalizado</h1>
+<p class="sub">Visualización educativa del movimiento cervical. Puedes cargar informes para organizar hallazgos confirmados, pero este visor no diagnostica ni mide compresión real.</p>
+
+<div class="grid">
+  <div>
+    <div class="card sticky-viz">
+      <div class="fig-wrap">
+        <svg class="fig" id="fig" viewBox="0 0 320 380" role="img" aria-label="Esquema del cuello"></svg>
+        <div id="webgl-container" role="img" aria-label="Modelo 3D realista de la cabeza y cuello">
+            <div id="loading-msg">Cargando modelo 3D...</div>
+        </div>
+      </div>
+      <p class="cap" id="cap"></p>
+      
+      <div id="clinical-warning" class="clinical-warning">
+        ⚠️ Este movimiento puede ser relevante para conversar con un profesional si tus informes describen un hallazgo en esta posición. No demuestra compresión ni indica por sí solo que exista una lesión.
+      </div>
+
+      <div class="cap" id="pr" style="color:var(--ink)"></div>
+    </div>
+
+    <section class="card" aria-label="Controles de movimiento" style="margin-top: 18px;">
+      <label style="font-weight:400"><input type="checkbox" id="sed"> Mostrar consideraciones generales sobre hipermovilidad</label>
+
+      <section class="card report-tools" aria-labelledby="reports-title">
+        <h2 id="reports-title">Informes personales (procesamiento local)</h2>
+        <p class="cap">Los archivos se procesan en este navegador y no se suben a un servidor de esta aplicación. El visor no diagnostica: organiza posibles hallazgos para que los revises y confirmes.</p>
+        <label for="report-files">Agregar informes PDF, TXT, JPG o PNG</label>
+        <input id="report-files" type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,application/pdf,text/plain,image/jpeg,image/png" multiple>
+        <div class="report-actions">
+          <button id="export-profile" type="button">Exportar resumen JSON</button>
+          <button id="clear-profile" type="button">Borrar datos locales</button>
+        </div>
+        <div id="report-status" class="cap" role="status" aria-live="polite"></div>
+        <div id="report-review"></div>
+        <div id="confirmed-findings"></div>
+      </section>
+      <div class="btns" id="pm"><button data-h="rot" aria-pressed="true">Izquierda/derecha: rotación</button><button data-h="tilt" aria-pressed="false">Izquierda/derecha: inclinación</button></div>
+      <div id="pad" tabindex="0" role="group" aria-label="Control de dirección del cuello. Arrastra el punto o usa las flechas del teclado."><i id="dot"></i><b class="pl u">Extensión (arriba)</b><b class="pl d">Flexión (abajo)</b><b class="pl l">Izq.</b><b class="pl r">Der.</b></div>
+      <p class="cap">Arrastra el punto hacia un lado, arriba, abajo o en diagonal. Los deslizadores de abajo se mueven contigo y sirven para ajustar con precisión. El movimiento diagonal combina ejes; no es una articulación adicional.</p>
+      <div id="sl"></div>
+      <p class="cap" id="deg"></p><p class="cap" id="pose" aria-live="polite"></p><p class="cap">Movimientos incluidos: flexión, extensión, rotación axial, inclinación lateral y traslación anterior/retracción. Las diagonales son combinaciones de esos ejes.</p>
+      <div class="lg"><span><i style="background:var(--vago)"></i>Trayecto aproximado del vago</span><span><i style="background:var(--art)"></i>Trayecto aproximado de la arteria vertebral</span><span><i style="background:#d8b84e"></i>Médula</span><span><i style="background:var(--acc)"></i>Músculo y raíces</span><span><i style="background:var(--bone)"></i>Hueso</span></div>
+      <p class="cap">Los círculos numerados señalan carga o tensión (ámbar) y posible estrechamiento o compromiso teórico (rojo). No representan una compresión medida. El número coincide con la lista; la silueta punteada es la posición neutra.</p>
+    </section>
+  </div>
+
+  <div>
+    <h2>Estructuras del cuello</h2>
+    <section aria-live="polite"><div id="out"></div></section>
+    <h2>Otras partes del cuerpo</h2>
+    <div class="card bm"><svg id="body" viewBox="0 0 120 300" role="img" aria-label="Silueta del cuerpo con las zonas que pueden responder"></svg><div id="bp"></div></div>
+  </div>
+</div>
+
+<p class="note"><b>Aviso:</b> Este visor es educativo. Los datos cargados solo se muestran después de una revisión y confirmación manual. No mide compresión, no interpreta imágenes como un radiólogo y no sustituye una evaluación médica. No fuerces rangos extremos. Si aparece debilidad nueva o progresiva, dificultad para caminar, pérdida extensa de sensibilidad, desmayo, visión doble persistente o cambios nuevos en vejiga/intestino, busca atención médica.</p>
+</main>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// ===== VARIABLES GLOBALES Y ESTADO =====
+// Nota: Se define 'hk' aquí arriba para evitar errores de referencia en poseSummary()
+let hk = "rot"; 
+let mv = "flex", side = "der";
+let scene, camera, renderer, headPivot;
+let modelLoaded = false;
+const container = document.getElementById('webgl-container');
+const loadingMsg = document.getElementById('loading-msg');
+
+const MOV={
+flex:{n:"Flexión (mentón al pecho)",v:"side",max:35,cap:"Vista lateral. La cara mira a la derecha. (Limitado a 35° por anterolistesis C2-C4)"},
+ext:{n:"Extensión (mirar arriba)",v:"side",max:50,cap:"Vista lateral. La cara mira a la derecha."},
+prot:{n:"Traslación anterior/posterior de la cabeza",v:"side",max:100,cap:"Vista lateral. Desplazamiento de la cabeza hacia delante o retracción hacia atrás."},
+rot:{n:"Rotación",v:"top",max:80,cap:"Vista desde arriba. La nariz apunta hacia arriba del dibujo."},
+tilt:{n:"Inclinación lateral",v:"front",max:40,cap:"Vista de frente. El lado derecho de la persona queda a la izquierda del dibujo."}};
+
+const S=[
+["Nervio vago",{flex:[1,"Estiramiento leve al alargarse la vaina que comparte con la carótida y la yugular."],ext:[0,"Poco cambio; el trayecto se acorta y se relaja."],prot:[1,"Tensión leve y sostenida desde la base del cráneo hasta el cuello."],rot:[1,"Lado {C}: se estira. Lado {I}: se relaja, aunque puede rozar el músculo esternocleidomastoideo."],tilt:[1,"Lado {C}: se estira. Lado {I}: la vaina queda presionada por los músculos laterales."]}],
+["Arteria vertebral",{flex:[1,"Se estira un poco entre C1 y el cráneo."],ext:[2,"Puede pinzarse entre el occipucio y C1, donde hace un giro muy cerrado. Mareo o visión borrosa son posibles."],prot:[2,"Extiende la unión del cráneo con C1: mismo punto de pinzamiento que en la extensión."],rot:[2,"Lado {C}: puede estirarse o comprimirse a nivel C1-C2, más aún con laxitud. Puede dar mareo o presíncope."],tilt:[1,"Lado {I}: puede plegarse. Lado {C}: se estira."]}],
+["Tronco encefálico y unión craneocervical",{flex:[2,"La flexión puede modificar el espacio entre estructuras cervicales; esta ilustración no mide desplazamiento ni compresión."],ext:[1,"El borde del agujero magno y el arco de C1 se acercan por detrás."],prot:[2,"Combina tracción y compresión; es una posición exigente si hay inestabilidad."],rot:[1,"C1 gira sobre C2 y los ligamentos alares se tensan. Con laxitud, el giro excesivo reduce el espacio."],tilt:[1,"Los ligamentos alares frenan el desplazamiento lateral y trabajan de más con laxitud."]}],
+["Médula cervical",{flex:[2,"La flexión puede cambiar la geometría del canal en algunas condiciones; esta ilustración no demuestra estrechamiento ni compresión."],ext:[2,"El ligamento amarillo se pliega hacia atrás y reduce el canal: posible estrechamiento o compromiso teórico."],prot:[1,"Estiramiento sostenido en la zona baja del cuello."],rot:[1,"Se tuerce levemente y el canal se estrecha un poco."],tilt:[0,"Cambio pequeño si no hay estenosis."]}],
+["Raíces nerviosas y plexo braquial",{flex:[1,"Se estiran al abrirse los agujeros de salida."],ext:[2,"Los agujeros se estrechan: posible pinzamiento y dolor que baja al brazo."],prot:[1,"Tensión en las raíces bajas (C5 a C8)."],rot:[1,"Lado {I}: el agujero se cierra. Lado {C}: se abre."],tilt:[2,"Lado {I}: el agujero se cierra (posible pinzamiento). Lado {C}: el plexo braquial se estira."]}],
+["Ligamentos y cápsulas articulares",{flex:[1,"Los ligamentos posteriores soportan la tensión. La tensión ligamentosa no se puede determinar con este visor ni a partir de una postura dibujada."],ext:[1,"Los ligamentos anteriores y las cápsulas articulares soportan la carga."],prot:[1,"Carga sostenida en ligamentos y cápsulas."],rot:[1,"Los ligamentos alares y transverso trabajan al máximo; en SED pueden limitar peor."],tilt:[1,"Las cápsulas articulares del lado {C} se estiran."]}],
+["Músculos suboccipitales y esternocleidomastoideo",{flex:[1,"Se estiran y los extensores frenan el peso de la cabeza. La tensión muscular individual no se puede determinar con este visor."],ext:[1,"Los suboccipitales se acortan y se sobrecargan."],prot:[1,"Suboccipitales acortados de forma sostenida; fuente frecuente de dolor de cabeza de origen cervical."],rot:[1,"Lado {C}: el esternocleidomastoideo se estira. Lado {I}: se acorta."],tilt:[1,"Lado {C} se estira, lado {I} se acorta."]}],
+["Inestabilidad C2-C4 (Hallazgo RX)",{flex:[2,"Si un informe describe un desplazamiento en flexión, conviene comentarlo con un profesional; este visor no confirma inestabilidad ni compresión."],ext:[1,"El retorno hacia la extensión se muestra de forma esquemática y no permite inferir laxitud ligamentosa."],prot:[2,"El adelantamiento de la cabeza puede agravar el deslizamiento vertebral."],rot:[1,"La rotación puede generar estrés en las facetas de C2-C4."],tilt:[1,"La inclinación lateral puede descompensar la alineación."]}]
+];
+
+const TAG=["Poco cambio","Estiramiento o carga","Posible estrechamiento o compromiso teórico"];
+const $=id=>document.getElementById(id);
+const SN={der:"derecho",izq:"izquierdo"};
+const AX={fe:{n:"Flexión / extensión",l:"Extensión",r:"Flexión"},prot:{n:"Traslación anterior / retracción",l:"Retracción",r:"Adelantamiento"},rot:{n:"Rotación axial",l:"Izquierda",r:"Derecha"},tilt:{n:"Inclinación lateral",l:"Izquierda",r:"Derecha"}};
+const V0={fe:0,prot:0,rot:0,tilt:0};let focus="fe";
+
+function updateClinicalWarning() {
+    const warningEl = $("clinical-warning");
+    if (V0.fe > 15 || V0.prot > 15) {
+        warningEl.classList.add("active");
+    } else {
+        warningEl.classList.remove("active");
+    }
+}
+
+function sliders(){$("sl").innerHTML=Object.entries(AX).map(([k,x])=>`<div class="ax"><label for="r_${k}">${x.n}: <b id="o_${k}"></b></label><input type="range" id="r_${k}" data-k="${k}" min="-100" max="100" value="${V0[k]}"><div class="ends"><span>${x.l}</span><span>${x.r}</span></div></div>`).join("")+`<button id="rs">Volver a posición neutra</button>`;}
+function acts(){const o=[],fe=V0.fe;
+if(fe)o.push({k:"fe",mv:fe>0?"flex":"ext",side:"der",a:Math.abs(fe)});
+if(V0.prot)o.push({k:"prot",mv:"prot",side:V0.prot>0?"der":"izq",a:Math.abs(V0.prot)});
+if(V0.rot)o.push({k:"rot",mv:"rot",side:V0.rot>0?"der":"izq",a:Math.abs(V0.rot)});
+if(V0.tilt)o.push({k:"tilt",mv:"tilt",side:V0.tilt>0?"der":"izq",a:Math.abs(V0.tilt)});return o;}
+const R=Math.PI/180,CD="#d8b84e",GAP=[29,28,27,26,25,20];
+const tf=(p,o)=>{const c=Math.cos(o.a*R),s=Math.sin(o.a*R);return[o.x+p[0]*c-p[1]*s,o.y+p[0]*s+p[1]*c]};
+const pl=(P,c,w,x="")=>`<polyline points="${P.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${x}/>`;
+function chain(ang,sk){const V=[{x:150,y:335,a:ang[0]}];
+for(let i=0;i<6;i++){const o=V[i],a=(o.a+ang[i+1])/2*R;V.push({x:o.x+Math.sin(a)*GAP[i],y:o.y-Math.cos(a)*GAP[i],a:ang[i+1]});}
+return{V,S:{x:V[6].x,y:V[6].y,a:sk}};}
+const gt=o=>`<g transform="translate(${o.x.toFixed(1)},${o.y.toFixed(1)}) rotate(${o.a.toFixed(1)})" fill="var(--bone)" stroke="var(--mute)" stroke-width="1.5">`;
+function vert(i,o){let g=gt(o);
+if(i<6)g+=`<rect x="-4" y="${-GAP[i]+10}" width="22" height="${GAP[i]-20}" rx="3" fill="var(--line)" stroke="none"/>`;
+if(i<6)g+=`<rect x="-4" y="-10" width="22" height="20" rx="5"/><rect x="-22" y="-9" width="19" height="4" rx="2"/><rect x="-27" y="-7" width="6" height="17" rx="3"/><path d="M-24 -3 L-48 8 L-24 9Z"/>`+(i>0?`<circle cx="7" cy="0" r="4" fill="var(--card)"/>`:"");
+if(i===5)g+=`<path d="M0 -10 L4 -31 L11 -31 L14 -10Z"/>`;
+if(i===6)g+=`<ellipse cx="11" cy="-2" rx="4" ry="8"/><ellipse cx="-18" cy="-2" rx="5" ry="9"/><rect x="-6" y="-9" width="14" height="14" rx="4"/>`;
+return g+`</g>`;}
+function vertF(i,o){let g=gt(o);
+if(i<6)g+=`<rect x="-16" y="${-GAP[i]+10}" width="32" height="${GAP[i]-20}" fill="var(--line)" stroke="none"/>`;
+return g+`<rect x="-16" y="-10" width="32" height="20" rx="4"/><rect x="${i===6?-36:-30}" y="-4" width="${i===6?72:60}" height="8" rx="3"/></g>`;}
+const SK="M-40 -8 C-78 -30 -76 -110 -20 -130 C30 -144 80 -120 84 -82 L88 -70 L102 -52 L92 -48 L94 -40 L89 -32 L92 -22 L84 -6 L40 -2 L24 -12 L6 -14Z",JW="",BR='<ellipse cx="14" cy="-84" rx="52" ry="38" fill="#e7a9b8" fill-opacity=".35" stroke="none"/><ellipse cx="-30" cy="-44" rx="26" ry="17" fill="#b08fd0" fill-opacity=".45" stroke="none"/>';
+function skull(K,fr,gh){const f=gh?'fill="none"':'fill="var(--bone)" stroke="var(--mute)" stroke-width="2"';
+return `<g transform="translate(${K.x.toFixed(1)},${K.y.toFixed(1)}) rotate(${K.a.toFixed(1)})" ${f}>`+(fr?`<ellipse cx="0" cy="-42" rx="40" ry="44"/><path d="M-22 -4 Q0 12 22 -4"/>`:`<path d="${SK}"/>`+(gh?"":BR)+`<ellipse cx="6" cy="-46" rx="6" ry="10"/><circle cx="64" cy="-72" r="2.5" fill="var(--mute)"/>`)+`</g>`;}
+const ghost=(G,f)=>`<g opacity=".5" stroke="var(--mute)" stroke-width="1.5" fill="none">${pl(G.V.map(o=>[o.x,o.y]).concat([[G.S.x,G.S.y]]),"var(--mute)",1.5,'stroke-dasharray="4 4"')}${skull(G.S,f,1)}</g>`;
+const PA={
+0:{rot:"C1 y apófisis estiloides",tilt:"músculos del cuello"},
+1:{flex:"arco de C1",ext:"arco de C1 y cráneo",prot:"arco de C1 y cráneo",rot:"C1 girando sobre C2",tilt:"apófisis transversas"},
+2:{flex:"odontoides de C2",ext:"agujero magno y C1",prot:"odontoides y agujero magno",rot:"odontoides y ligamento",tilt:"masas laterales de C1"},
+3:{flex:"odontoides y vértebras",ext:"ligamento amarillo y láminas",prot:"cuerpos vertebrales",rot:"ligamento transverso",tilt:"paredes del canal"},
+4:{ext:"articulaciones facetarias",tilt:"articulaciones facetarias",def:"huesos del agujero"}};
+const NS=["Nervio vago","Arteria vertebral","Tronco encefálico","Médula","Raíces nerviosas","Ligamento nucal","Suboccipitales", "Inestabilidad C2-C4"];
+const mark=(i,p,v,an,l)=>{const c=v>1?"var(--cmp)":"var(--str)",x=p[0].toFixed(1),y=p[1].toFixed(1);
+const ar=v>1?[0,180].map(d=>{const q=(an+d)*R,f=(r)=>[(p[0]+Math.cos(q)*r).toFixed(1),(p[1]+Math.sin(q)*r).toFixed(1)],a=f(24),b=f(13);return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="3" marker-end="url(#ar)"/>`}).join(""):"";
+const ag=v>1&&PA[i]?(PA[i][mv]||PA[i].def||""):"";const tl=l?`<text x="${l==="l"?p[0]-15:p[0]+15}" y="${(p[1]+4).toFixed(1)}" text-anchor="${l==="l"?"end":"start"}" font-size="10" font-weight="700" fill="var(--ink)" stroke="var(--card)" stroke-width="3" paint-order="stroke">${NS[i]}</text>`+(ag?`<text x="${l==="l"?p[0]-15:p[0]+15}" y="${(p[1]+15).toFixed(1)}" text-anchor="${l==="l"?"end":"start"}" font-size="9" fill="var(--cmp)" stroke="var(--card)" stroke-width="3" paint-order="stroke">contra ${ag}</text>`:""):"";
+return `<g class="mk${v}">${ar}<circle cx="${x}" cy="${y}" r="10" fill="${c}" fill-opacity=".3" stroke="${c}" stroke-width="2"/><text x="${x}" y="${(p[1]+4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${i+1}</text>${tl}</g>`};
+const SED=()=>$("sed").checked;
+function eff(s,a,n,q){if(a<20)return 0;return s;}
+function draw(a){
+const m=MOV[mv],deg=m.max*a/100;
+const st=S.map(([n,d])=>eff(d[mv][0],a,n,mv));
+const cv=st[0]>1?"var(--cmp)":"var(--vago)",ca=st[1]>1?"var(--cmp)":"var(--art)";
+let s='<defs><marker id="ar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6z" fill="var(--cmp)"/></marker></defs>',H=[];
+const G=chain([0,0,0,0,0,0,0],0);
+if(m.v==="side"){
+const t=mv==="flex"?deg:mv==="ext"?-deg:0,p=mv==="prot"?(side==="der"?a:-a)/100:0;
+const PR=[0,8,16,18,10,-8,-20],ang=PR.map((v,i)=>p*v+t*i/7);
+const {V,S:K}=chain(ang,t-26*p),spin=o=>tf([-45,6],o);
+const skin=[...V].reverse().map(o=>tf([-66,0],o)).concat([[70,362],[60,380],[250,380],[238,358]],V.slice(0,6).map(o=>tf([74,0],o)),[tf([56,2],K)]);
+s+=`<polygon points="${skin.map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ")}" fill="var(--ok)" fill-opacity=".6" stroke="var(--line)"/>`;
+s+=pl(V.slice(0,6).map(o=>tf([46,0],o)),"#d98a8a",8,'opacity=".55"')+pl(V.slice(0,3).map(o=>tf([64,0],o)),"#7fb3c8",14,'opacity=".55"');
+s+=pl(V.map(o=>tf([-58,0],o)).concat([tf([-50,-30],K)]),"var(--acc)",12,'opacity=".18"')+pl([tf([6,-16],K),tf([52,0],V[3]),tf([60,0],V[0]),[214,352]],"var(--acc)",7,'opacity=".3"');
+s+=ghost(G,0)+skull(K)+V.map((o,i)=>vert(i,o)).join("");
+s+=pl(V.slice(0,6).map(spin).concat([tf([-36,-14],K)]),"var(--mute)",1.5,'stroke-dasharray="3 3"');
+const m1=spin(V[5]),m2=tf([-40,-16],K);
+s+=pl([m1,m2],"var(--acc)",6,'opacity=".7"');
+s+=pl(V.map(o=>tf([-12,0],o)).concat([tf([-8,-30],K),tf([-4,-58],K)]),CD,7);
+s+=pl(V.slice(1,6).map(o=>tf([7,0],o)).concat([tf([7,-8],V[6]),tf([-18,-16],V[6]),tf([-16,-30],K),tf([-6,-44],K)]),ca,3);
+const vg=V.map(o=>tf([32,0],o)).concat([tf([32,-10],V[6]),tf([26,-22],K)]);
+s+=pl(vg,"var(--vago)",12,'opacity=".18"')+pl(vg,cv,3.5);
+const tx=(q,x,fs)=>`<text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" font-size="${fs}" fill="var(--mute)">${x}</text>`;
+s+=V.map((o,i)=>tx(tf([-62,4],o),"C"+(7-i),10)).join("")+tx(tf([88,6],V[1]),"Tráquea y esófago",9)+tx(tf([-40,-38],K),"Cerebelo",9);
+if(mv==="flex" && a > 20) {
+    s+=`<circle cx="${tf([-10,0],V[4])[0].toFixed(1)}" cy="${tf([-10,0],V[4])[1].toFixed(1)}" r="12" fill="var(--cmp)" opacity="0.3"/><text x="${tf([-10,0],V[4])[0].toFixed(1)}" y="${tf([-10,0],V[4])[1].toFixed(1)}" text-anchor="middle" font-size="9" fill="white" font-weight="bold">!</text>`;
+}
+H=[[0,tf([32,-8],V[6]),0,"r"],[1,tf([-14,-14],V[6]),90,"l"],[2,tf([8,-34],V[5]),0,"r"],[3,tf([-12,0],V[3]),0,"l"],[4,tf([4,-20],V[3]),0,"r"],[5,spin(V[1]),0,"l"],[6,[(m1[0]+m2[0])/2,(m1[1]+m2[1])/2],90,"l"]];
+}else if(m.v==="top"){
+const r=(side==="der"?1:-1)*deg,cx=160,cy=172,rp=(x,y)=>tf({x:cx,y:cy,a:r},[x-cx,y-cy]);
+const ax=side==="der"?102:218,vx=side==="der"?88:232;
+s+=`<ellipse cx="160" cy="192" rx="58" ry="70" fill="none" stroke="var(--mute)" stroke-width="1.5" stroke-dasharray="4 4" opacity=".5"/>`;
+s+=`<ellipse cx="160" cy="205" rx="78" ry="52" fill="var(--line)" opacity=".6"/><ellipse cx="160" cy="168" rx="11" ry="17" fill="var(--bone)" stroke="var(--mute)" stroke-width="1.5"/>`;
+s+=`<circle cx="160" cy="224" r="14" fill="${CD}"/>`;
+s+=`<g transform="rotate(${r} ${cx} ${cy})"><ellipse cx="160" cy="192" rx="58" ry="70" fill="none" stroke="var(--bone)" stroke-width="16"/><ellipse cx="160" cy="192" rx="66" ry="78" fill="none" stroke="var(--mute)" stroke-width="1.5"/><ellipse cx="160" cy="192" rx="50" ry="62" fill="none" stroke="var(--mute)" stroke-width="1.5"/><line x1="112" y1="190" x2="208" y2="190" stroke="var(--str)" stroke-width="4"/><circle cx="102" cy="196" r="6" fill="${ca}"/><circle cx="218" cy="196" r="6" fill="${ca}"/><path d="M160 84 l-9 16 h18z" fill="var(--acc)"/></g>`;
+s+=`<circle cx="88" cy="140" r="14" fill="var(--vago)" opacity=".18"/><circle cx="232" cy="140" r="14" fill="var(--vago)" opacity=".18"/><circle cx="88" cy="140" r="7" fill="${side==="izq"?cv:"var(--vago)"}"/><circle cx="232" cy="140" r="7" fill="${side==="der"?cv:"var(--vago)"}"/>`;
+s+=`<text x="160" y="40" text-anchor="middle" font-size="11" fill="var(--mute)">Frente</text><text x="160" y="318" text-anchor="middle" font-size="11" fill="var(--mute)">Espalda</text><text x="160" y="340" text-anchor="middle" font-size="11" fill="var(--mute)">Anillo de C1 girando alrededor de C2</text>`;
+H=[[0,[vx,140]],[1,rp(ax,196)],[2,[160,168]],[3,[160,224]],[5,rp(160,190)]];
+}else{
+const sg=side==="der"?-1:1,t=sg*deg;
+const {V,S:K}=chain([0,1,2,3,4,5,6].map(i=>t*i/7),t);
+s+=ghost(G,1)+skull(K,1);
+s+=pl(V.map(o=>tf([0,0],o)).concat([tf([0,-40],K)]),CD,7);
+s+=V.map((o,i)=>vertF(i,o)).join("");
+for(const e of[-1,1]){
+for(let i=0;i<4;i++)s+=pl([tf([e*16,-GAP[i]/2],V[i]),tf([e*52,-GAP[i]/2+8],V[i])],"var(--acc)",2.5);
+s+=pl(V.slice(1,6).map(o=>tf([e*22,0],o)).concat([tf([e*30,-4],V[6]),tf([e*14,-26],K)]),ca,3);
+const vg=V.map(o=>tf([e*44,0],o)).concat([tf([e*36,-24],K)]);
+s+=pl(vg,"var(--vago)",10,'opacity=".18"')+pl(vg,cv,3);}
+H=[[0,tf([-sg*44,0],V[4])],[1,tf([sg*22,0],V[5])],[2,tf([0,-14],V[6])],[3,tf([0,0],V[3])],[4,tf([sg*40,-GAP[3]/2],V[3])],[5,tf([-sg*14,-10],V[6])],[6,tf([-sg*40,-20],V[4])]];
+}
+s+=H.map(([i,p,an,l])=>st[i]?mark(i,p,st[i],an||0,l):"").join("");
+$("fig").innerHTML=s;}
+
+const BP=[
+["Cabeza, ojos y oídos",[1,2],"Mareo, visión borrosa, zumbido de oídos, dolor de cabeza o sensación de desmayo si baja el flujo de la arteria vertebral o se afecta el tronco encefálico."],
+["Mandíbula y cara",[6,2],"Tensión mandibular y dolor en la cara; el núcleo del nervio trigémino se extiende hasta los primeros segmentos cervicales."],
+["Garganta y voz",[0],"Cambios en la voz, nudo en la garganta o dificultad para tragar si el nervio vago se tensa."],
+["Corazón y presión arterial",[0,2],"Palpitaciones, presión que sube o baja, mareo al ponerte de pie; el vago y el tronco encefálico regulan el ritmo cardíaco."],
+["Pulmones y respiración",[0,4],"Sensación de falta de aire o suspiros; el vago y el nervio frénico (C3 a C5) intervienen en la respiración."],
+["Digestión",[0],"Náuseas, hinchazón o digestión lenta; el vago controla el movimiento del estómago y el intestino."],
+["Hombros y escápulas",[6,4],"Dolor entre el cuello y el hombro y trapecio contraído; las raíces C3 a C5 y el nervio accesorio inervan la zona."],
+["Brazos y manos",[4,3],"Hormigueo, adormecimiento o debilidad que baja por el brazo (raíces C5 a T1 y médula)."],
+["Espalda alta",[5,6],"Dolor o rigidez entre las escápulas; la columna torácica compensa cuando el cuello se mueve de más."],
+["Piernas y equilibrio",[3,2],"Torpeza al caminar, piernas pesadas u hormigueo si la médula se comprime. Es poco común, pero es señal para consultar pronto."]];
+const SHP=[[0,'circle cx="60" cy="26" r="20"'],[1,'ellipse cx="60" cy="42" rx="12" ry="6"'],[2,'rect x="54" y="50" width="12" height="16" rx="4"'],[3,'circle cx="62" cy="104" r="10"'],[4,'ellipse cx="42" cy="98" rx="9" ry="18"'],[4,'ellipse cx="78" cy="98" rx="9" ry="18"'],[5,'ellipse cx="60" cy="152" rx="22" ry="20"'],[6,'rect x="12" y="66" width="26" height="12" rx="6"'],[6,'rect x="82" y="66" width="26" height="12" rx="6"'],[7,'rect x="6" y="82" width="14" height="88" rx="7"'],[7,'rect x="100" y="82" width="14" height="88" rx="7"'],[8,'rect x="44" y="70" width="32" height="10" rx="5"'],[9,'rect x="38" y="196" width="18" height="96" rx="8"'],[9,'rect x="64" y="196" width="18" height="96" rx="8"']];
+const TB=["","Posible molestia","Posibles síntomas importantes"];
+function bodyMap(rows){const sa=[];rows.forEach(r=>sa[r.i]=r.s);
+const rs=BP.map(([n,ids,t])=>({n,t,s:Math.max(...ids.map(i=>sa[i]))}));
+const fl=s=>s===2?'fill="var(--cmpbg)" stroke="var(--cmp)"':s===1?'fill="var(--strbg)" stroke="var(--str)"':'fill="var(--ok)" stroke="var(--line)"';
+$("body").innerHTML=`<rect x="34" y="64" width="52" height="136" rx="16" fill="var(--card)" stroke="var(--line)"/>`+SHP.map(([i,d])=>{const tg=d.split(" ")[0];return `<${tg} ${d.slice(tg.length)} ${fl(rs[i].s)} stroke-width="1.5"><title>${rs[i].n}</title></${tg}>`}).join("");
+const on=rs.filter(r=>r.s).sort((a,b)=>b.s-a.s),off=rs.filter(r=>!r.s);
+$("bp").innerHTML=(on.length?on.map(r=>`<div class="s s${r.s}"><h3><span>${r.n}</span><span class="tag">${TB[r.s]}</span></h3><p>${r.t}</p></div>`).join(""):`<p class="cap">Con el cuello cerca de la posición neutra no se espera respuesta en otras partes del cuerpo.</p>`)+(on.length&&off.length?`<p class="cap">Sin cambio esperado: ${off.map(r=>r.n.toLowerCase()).join(", ")}. Son respuestas posibles, no inevitables.</p>`:"");}
+function poseSummary(){
+const p=[];
+if(V0.fe>0)p.push("flexión");else if(V0.fe<0)p.push("extensión");
+if(V0.prot>0)p.push("adelantamiento");else if(V0.prot<0)p.push("retracción");
+// hk ahora está definido globalmente al inicio del script
+if(V0[hk]>0)p.push(hk==="rot"?"rotación derecha":"inclinación derecha");else if(V0[hk]<0)p.push(hk==="rot"?"rotación izquierda":"inclinación izquierda");
+return p.length?"Movimiento seleccionado: "+p.join(" + ")+".":"Posición neutra.";
+}
+
+// ===== SETUP DE THREE.JS (MOTOR 3D) =====
+function init3D() {
+  scene = new THREE.Scene();
+  // Usar un color de fondo transparente o que combine con el tema
+  scene.background = new THREE.Color(0xeaf0f2); 
+
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+  // Posicionar la cámara un poco más atrás para asegurar que el modelo quepa
+  camera.position.set(0, 0, 5.0); 
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  
+  // Ocultar mensaje de carga inicial
+  if(loadingMsg) loadingMsg.style.display = 'block';
+  container.appendChild(renderer.domElement);
+
+  // Iluminación mejorada
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+  scene.add(ambientLight);
+  
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+  keyLight.position.set(5, 5, 5);
+  scene.add(keyLight);
+  
+  const fillLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  fillLight.position.set(-5, 0, 5);
+  scene.add(fillLight);
+
+  const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  backLight.position.set(0, -5, -5);
+  scene.add(backLight);
+
+  headPivot = new THREE.Group();
+  scene.add(headPivot);
+
+  const loader = new OBJLoader();
+  
+  // Ruta robusta para GitHub Pages y local
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  const modelUrl = isGitHubPages 
+    ? 'https://dbettancourt.github.io/visor-cervical-personalizado/Person002_wrap.obj?v=2' 
+    : './Person002_wrap.obj';
+
+  console.log("Intentando cargar modelo desde:", modelUrl);
+
+  loader.load(modelUrl, (object) => {
+    // Ocultar mensaje de carga en lugar de eliminarlo (más seguro)
+    if(loadingMsg) loadingMsg.style.display = 'none';
+    
+    // --- CORRECCIÓN CRÍTICA DE ESCALADO Y CENTRADO ---
+    // 1. Escalar primero
+    const boxInit = new THREE.Box3().setFromObject(object);
+    const sizeInit = boxInit.getSize(new THREE.Vector3());
+    const maxDim = Math.max(sizeInit.x, sizeInit.y, sizeInit.z);
+    const scaleFactor = 2.5 / maxDim; // Ajusta este 2.5 si el modelo se ve muy grande/pequeño
+    object.scale.setScalar(scaleFactor);
+
+    // 2. Recalcular caja con el nuevo tamaño
+    const boxScaled = new THREE.Box3().setFromObject(object);
+    const centerScaled = boxScaled.getCenter(new THREE.Vector3());
+
+    // 3. Centrar el objeto restando el nuevo centro
+    object.position.sub(centerScaled);
+    // --------------------------------------------------
+
+    // Aplicar material
+    object.traverse((child) => {
+      if (child.isMesh) {
+        // Recalcular normales: sin ellas el modelo se ve plano (solo silueta)
+        child.geometry.deleteAttribute('normal');
+        child.geometry = mergeVertices(child.geometry, 1e-4);
+        child.geometry.computeVertexNormals();
+        child.material = new THREE.MeshStandardMaterial({
+          color: 0xebbfae, 
+          roughness: 0.6,
+          metalness: 0.1,
+          side: THREE.DoubleSide, // Útil si el modelo tiene caras abiertas
+          flatShading: false
+        });
+      }
+    });
+
+    headPivot.add(object);
+    modelLoaded = true;
+    console.log("✅ Modelo 3D cargado exitosamente.");
+  }, 
+  (xhr) => {
+    if (xhr.total !== 0 && loadingMsg) {
+      const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+      loadingMsg.textContent = `Cargando modelo 3D... ${percent}%`;
+    }
+  },
+  (err) => {
+    console.error("❌ Error cargando el modelo .obj: ", err);
+    if(loadingMsg) loadingMsg.style.display = 'none';
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'color: var(--cmp); padding: 20px; text-align: center; font-size: 0.9rem; background: var(--cmpbg); border-radius: 8px; margin: 10px; position:absolute; z-index:2;';
+    errorDiv.innerHTML = `<b>Error al cargar el modelo 3D</b><br>URL intentada: <code style="font-size:0.8em;word-break:break-all;">${modelUrl}</code><br>Verifica que el archivo <i>Person002_wrap.obj</i> está en la raíz del repositorio.`;
+    container.appendChild(errorDiv);
+  });
+
+  window.addEventListener('resize', onWindowResize);
+  animate();
+}
+
+function onWindowResize() {
+  if(!container.clientWidth) return;
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  
+  if (modelLoaded && headPivot) {
+    // Suavizado de rotaciones basado en los valores de V0
+    const targetRotY = (V0.rot / 100) * (Math.PI / 3); 
+    headPivot.rotation.y += (targetRotY - headPivot.rotation.y) * 0.1; 
+
+    const targetRotZ = (V0.tilt / 100) * -(Math.PI / 5); 
+    headPivot.rotation.z += (targetRotZ - headPivot.rotation.z) * 0.1;
+
+    const targetRotX = (V0.fe / 100) * (Math.PI / 5); // fe<0 = extensión -> la cara sube
+    headPivot.rotation.x += (targetRotX - headPivot.rotation.x) * 0.1;
+
+    const targetPosZ = (V0.prot / 100) * 0.2; // adelantamiento -> hacia la cámara
+    headPivot.position.z += (targetPosZ - headPivot.position.z) * 0.1;
+  }
+
+  if(renderer) renderer.render(scene, camera);
+}
+
+// Iniciar el motor 3D
+init3D();
+
+// ===== LÓGICA DE LA INTERFAZ Y RENDERIZADO SVG =====
+function render(){
+const kk=1,A=acts();syncPad();
+for(const k in AX){const v=V0[k],o=$("o_"+k);
+if(!v)o.textContent="neutra";
+else if(k==="prot")o.textContent=`${Math.abs(v)}% ${v>0?"adelantamiento":"retracción"}`;
+else{const q=k==="fe"?(v>0?"flex":"ext"):k;o.textContent=`${(MOV[q].max*kk*Math.abs(v)/100).toFixed(0)}° ${k==="fe"?(v>0?"flexión":"extensión"):v>0?"a la derecha":"a la izquierda"}`;}}
+$("pose").textContent=poseSummary();
+$("deg").textContent=SED()?"Modo clínico personalizado: Tus resonancias muestran rectificación de la lordosis y anterolistesis C2-C4. Los rangos están limitados para evitar el deslizamiento vertebral.":"Rangos orientativos del esquema: flexión 35° (limitado), extensión 50°, rotación 80°, inclinación 40°. No sustituyen una medición clínica.";
+
+updateClinicalWarning();
+
+const f=A.find(x=>x.k===focus)||A[0]||{mv:"flex",side:"der",a:0};
+mv=f.mv;side=f.side;$("cap").textContent=MOV[mv].cap+(A.length>1?" La figura muestra el último movimiento que tocaste.":"");
+draw(f.a);
+const pr=S.map(([n,d],i)=>({n,i,s:eff(d[mv][0],f.a,n,mv)})).filter(x=>x.s>1);$("pr").innerHTML=f.a<20?"":pr.length?"<b>Mecanismo hipotético: estructura potencialmente afectada</b>"+pr.map(x=>{const g=PA[x.i]?(PA[x.i][mv]||PA[x.i].def):"";return `<div>${x.n}${g?" ← "+g:""}</div>`}).join(""):"<b>No se identifica una compresión:</b> el esquema solo indica carga, tensión o cambio de espacio teórico.";
+const rows=S.map(([n,d],i)=>{let b={s:0,a:0,t:"",m:""};let first=true;
+for(const x of A){const [s0,t]=d[x.mv],s=eff(s0,x.a,n,x.mv);
+if(first||s>b.s||(s===b.s&&x.a>b.a)){first=false;const I=SN[x.side],C=SN[x.side==="der"?"izq":"der"];b={s,a:x.a,t:t.replaceAll("{I}",I).replaceAll("{C}",C),m:MOV[x.mv].n};}}
+return{i,n,...b}}).sort((x,y)=>y.s-x.s);
+const big=A.some(x=>x.a>=40);
+bodyMap(rows);$("out").innerHTML=(SED()&&big?`<p class="cap">Con hipermovilidad, la respuesta de ligamentos, músculos y articulaciones puede variar. Esta advertencia no confirma inestabilidad ni compresión.</p>`:"")+(A.length>1?`<p class="cap">Al combinar movimientos la carga puede cambiar, pero este modelo no calcula la interacción tridimensional. Cada fila muestra el nivel programado más alto entre los movimientos seleccionados por separado.</p>`:"")+rows.map(r=>`<div class="s s${r.s}"><h3><span><b class="bd">${r.i+1}</b>${r.n}</span><span class="tag">${TAG[r.s]}</span></h3><p>${!A.length||(r.s===0&&r.a<20)?"Cerca de la posición neutra: poca carga.":(A.length>1?`<b>${r.m}:</b> `:"")+r.t}</p></div>`).join("");}
+
+// Event Listeners
+$("sl").addEventListener("input",e=>{const k=e.target.dataset.k;if(k){V0[k]=+e.target.value;focus=k;render();}});
+$("sl").addEventListener("click",e=>{if(e.target.id==="rs"){for(const k in V0){V0[k]=0;$("r_"+k).value=0}focus="fe";render();}});
+
+let drag=false;
+function syncPad(){$("dot").style.left=(50+V0[hk]/2)+"%";$("dot").style.top=(50+V0.fe/2)+"%";for(const k in V0){const e=$("r_"+k);if(e)e.value=V0[k];}}
+function padSet(e){const r=$("pad").getBoundingClientRect(),cl=v=>Math.max(-100,Math.min(100,Math.round(v)));
+const x=cl(((e.clientX-r.left)/r.width-.5)*200),y=cl(((e.clientY-r.top)/r.height-.5)*200);
+V0[hk]=x;V0.fe=y;focus=Math.abs(x)>Math.abs(y)?hk:"fe";render();}
+$("pad").addEventListener("pointerdown",e=>{drag=true;try{$("pad").setPointerCapture(e.pointerId)}catch(_){}padSet(e);});
+$("pad").addEventListener("pointermove",e=>{if(drag)padSet(e);});
+$("pad").addEventListener("pointerup",()=>{drag=false;});
+$("pad").addEventListener("keydown",e=>{const d={ArrowUp:["fe",-10],ArrowDown:["fe",10],ArrowLeft:[hk,-10],ArrowRight:[hk,10]}[e.key];if(d){e.preventDefault();V0[d[0]]=Math.max(-100,Math.min(100,V0[d[0]]+d[1]));focus=d[0];render();}});
+$("pm").addEventListener("click",e=>{const h=e.target.dataset.h;if(h){hk=h;for(const b of $("pm").children)b.setAttribute("aria-pressed",b.dataset.h===h);focus=h;render();}});
+$("sed").onchange=render;
+
+sliders();render();
+</script>
+
+<script type="module">
+/* Organizador local de informes. No envía documentos ni realiza diagnóstico. */
+const STORAGE_KEY = "visor-cervical-educativo.profile.v1";
+const $r = id => document.getElementById(id);
+const initialProfile = {version:1, documents:[], findings:[]};
+let profile;
+try { profile = JSON.parse(localStorage.getItem(STORAGE_KEY)) || initialProfile; } catch (_) { profile = initialProfile; }
+
+function saveProfile(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); renderProfile(); }
+function esc(x){return String(x??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function setStatus(t){$r("report-status").textContent=t;}
+
+function detectCandidates(text){
+  const clean=text.replace(/\s+/g," ").trim();
+  const patterns=[
+    {category:"alineación", label:"Posible alteración de alineación", re:/(?:anterolistesis|retrolistesis|espondilolistesis|desplazamiento|inestabilidad|rectificaci[oó]n|lordosis|subluxaci[oó]n)/i},
+    {category:"disco", label:"Posible hallazgo discal", re:/(?:protrusi[oó]n|hernia|abombamiento|discopat[ií]a|degeneraci[oó]n discal)/i},
+    {category:"canal", label:"Posible hallazgo de canal o foramen", re:/(?:estenosis|estrechamiento|canal medular|foramen|compresi[oó]n medular)/i},
+    {category:"médula", label:"Mención de médula", re:/(?:m[eé]dula|mielopat[ií]a)/i}
+  ];
+  const out=[]; for(const p of patterns){const m=clean.match(p.re); if(m){const i=Math.max(0,m.index-100),j=Math.min(clean.length,m.index+m[0].length+180);out.push({category:p.category,label:p.label,text:clean.slice(i,j)});}}
+  return out;
+}
+
+async function extractPdf(file){
+  const pdfjs=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+  const pdf=await pdfjs.getDocument({data:await file.arrayBuffer()}).promise; let text="";
+  for(let n=1;n<=pdf.numPages;n++){const page=await pdf.getPage(n);const c=await page.getTextContent();text+=c.items.map(x=>x.str).join(" ")+"\
+";} return text;
+}
+async function extractFile(file){
+  const type=file.type;
+  if(type==="text/plain"||file.name.toLowerCase().endsWith(".txt")) return await file.text();
+  if(type==="application/pdf"||file.name.toLowerCase().endsWith(".pdf")) return await extractPdf(file);
+  if(type.startsWith("image/")){
+    if(!window.Tesseract) throw new Error("OCR no disponible");
+    const result=await Tesseract.recognize(file,"spa",{logger:m=>{if(m.status&&m.progress)setStatus(`OCR: ${m.status} ${Math.round(m.progress*100)}%`);}}); return result.data.text;
+  }
+  throw new Error("Formato no compatible");
+}
+
+function renderProfile(){
+  const review=$r("report-review"), confirmed=$r("confirmed-findings");
+  review.innerHTML=profile.documents.length?`<h3>Documentos guardados localmente</h3>`+profile.documents.map(d=>`<div class="report-item"><b>${esc(d.name)}</b><div class="small">${esc(d.type)} · ${esc(d.addedAt)} · ${d.textLength} caracteres extraídos</div></div>`).join(""):"";
+  const pending=profile.findings.filter(f=>!f.confirmed);
+  if(pending.length){review.innerHTML+=`<h3>Revisión necesaria</h3>`+pending.map((f,i)=>`<div class="report-item"><b>${esc(f.label)}</b><p class="small">Fragmento detectado automáticamente. No es una conclusión clínica.</p><textarea data-fid="${esc(f.id)}">${esc(f.text)}</textarea><label>Tipo <select data-field="category" data-fid="${esc(f.id)}"><option value="alineación">Alineación</option><option value="disco">Disco</option><option value="canal">Canal/foramen</option><option value="médula">Médula</option><option value="otro">Otro</option></select></label><button data-action="confirm" data-fid="${esc(f.id)}">Confirmar este fragmento</button> <button data-action="ignore" data-fid="${esc(f.id)}">Ignorar</button></div>`).join("");}
+  const ok=profile.findings.filter(f=>f.confirmed);
+  confirmed.innerHTML=ok.length?`<h3>Hallazgos confirmados por ti</h3>`+ok.map(f=>`<div class="report-item confirmed"><b>${esc(f.label)}</b><p>${esc(f.text)}</p><div class="small">Fuente: ${esc(f.documentName)} · Confirmado manualmente · No equivale a diagnóstico ni a medición de compresión.</div><button data-action="remove" data-fid="${esc(f.id)}">Quitar confirmación</button></div>`).join(""):`<p class="cap">Aún no hay hallazgos confirmados. La visualización general no se personaliza con datos no revisados.</p>`;
+}
+
+$r("report-files").addEventListener("change",async e=>{for(const file of e.target.files){try{setStatus(`Procesando ${file.name} localmente...`);const text=await extractFile(file);const doc={id:crypto.randomUUID(),name:file.name,type:file.type||"desconocido",addedAt:new Date().toLocaleString(),textLength:text.length};profile.documents.push(doc);for(const c of detectCandidates(text)){profile.findings.push({...c,id:crypto.randomUUID(),documentId:doc.id,documentName:file.name,confirmed:false});}saveProfile();setStatus(`${file.name} procesado. Revisa y confirma los fragmentos detectados.`);}catch(err){setStatus(`No se pudo procesar ${file.name}: ${err.message}`);}}e.target.value="";});
+$r("report-review").addEventListener("input",e=>{const id=e.target.dataset.fid;if(!id)return;const f=profile.findings.find(x=>x.id===id);if(f&&e.target.tagName==="TEXTAREA")f.text=e.target.value;if(f&&e.target.dataset.field)f[e.target.dataset.field]=e.target.value;});
+$r("report-review").addEventListener("change",e=>{const id=e.target.dataset.fid;const f=profile.findings.find(x=>x.id===id);if(f&&e.target.dataset.field){f[e.target.dataset.field]=e.target.value;saveProfile();}});
+function findingAction(e){const b=e.target.closest("button[data-action]");if(!b)return;const id=b.dataset.fid;const f=profile.findings.find(x=>x.id===id);if(!f)return;if(b.dataset.action==="confirm")f.confirmed=true;else if(b.dataset.action==="ignore")profile.findings=profile.findings.filter(x=>x.id!==id);else if(b.dataset.action==="remove")f.confirmed=false;saveProfile();}
+$r("report-review").addEventListener("click",findingAction);$r("confirmed-findings").addEventListener("click",findingAction);
+$r("clear-profile").addEventListener("click",()=>{if(confirm("¿Borrar documentos y hallazgos guardados en este navegador?")){profile=structuredClone(initialProfile);localStorage.removeItem(STORAGE_KEY);renderProfile();setStatus("Datos locales borrados.");}});
+$r("export-profile").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(profile,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="resumen-visor-cervical.json";a.click();URL.revokeObjectURL(a.href);});
+renderProfile();
+</script>
+
+</body>
+</html>
