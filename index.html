@@ -50,10 +50,7 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 .bm{display:flex;gap:14px;align-items:flex-start}.bm svg{width:110px;flex:none}.bm>div{flex:1;min-width:0}
 #pr div{padding-left:10px;border-left:3px solid var(--cmp);margin-top:4px}
 
-.grid{display:grid;grid-template-columns: 1fr;gap:24px;align-items:start}
-@media(min-width:900px){
-  .grid{grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr);}
-}
+.grid{display:grid;grid-template-columns:minmax(250px,.9fr) minmax(520px,2fr) minmax(300px,1.25fr);gap:18px;align-items:start}.control-column,.viz-column,.info-column{min-width:0}.control-column{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}.viz-column .sticky-viz{position:sticky;top:8px}.info-column{min-width:0}.control-column h2{margin-top:0}
 .sticky-viz {position:relative;background:var(--bg);padding-top:10px;}
 .fig-wrap{display:flex;gap:16px;align-items:stretch;width:100%;margin-bottom:16px;height:clamp(420px,58vh,650px);}
 .fig-wrap > * {min-width:0;background: var(--bg);border-radius: 8px;overflow: hidden; position: relative;}
@@ -78,8 +75,9 @@ h2{font-size:1.15rem;margin:20px 0 8px}
     padding: 20px;
 }
 
+@media(max-width:1200px){.grid{grid-template-columns:minmax(240px,1fr) minmax(420px,1.6fr)}.info-column{grid-column:1 / -1}.control-column{position:static;max-height:none;overflow:visible}.viz-column .sticky-viz{position:static}}
 @media(max-width:760px){
-  .fig-wrap{flex-direction:column; height: 650px;}
+  .grid{grid-template-columns:1fr}.info-column{grid-column:auto}.fig-wrap{flex-direction:column; height: 650px;}
   #fig { flex: 1; width:100%; aspect-ratio: auto;}
   #webgl-container { flex: 1; width:100%;}
   .bm{flex-direction:column;align-items:center}.bm svg{width:90px}
@@ -108,6 +106,9 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 .report-tools{margin-top:16px}.report-tools h2{margin-top:0}.report-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.report-item{border:1px solid var(--line);border-left:6px solid var(--acc);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--card)}.report-item textarea{width:100%;min-height:70px;font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}.report-item select,.report-item input{font:inherit;max-width:100%;margin:4px 8px 4px 0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px}.report-item .small{font-size:.82rem;color:var(--mute)}.confirmed{border-left-color:var(--str)}.danger-action{border-color:var(--cmp)}
 
 .info-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;position:sticky;top:8px;z-index:5}.info-tabs button{flex:1;min-width:90px;padding:8px 10px}.info-tabs button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:var(--card);font-weight:700}.info-panel>h2{margin-top:8px}.info-panel[hidden]{display:none}.info-panel{min-width:0}.report-tools{margin-top:0}.bm{max-height:calc(100vh - 150px);overflow:auto;align-items:flex-start}.bm>div{min-width:0}.bm svg{position:sticky;top:0;background:var(--card);padding:4px}
+
+@media(min-width:1201px){.viz-column{min-width:0}.viz-column .fig-wrap{min-height:520px}.control-column>.card,.info-column>.info-panel{min-width:0}}
+.control-column>.card{margin-top:0}.control-column .ax:first-of-type{margin-top:4px}.control-column .btns{justify-content:center}
 </style>
 </head>
 <body>
@@ -116,7 +117,21 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 <p class="sub">Visualización educativa del movimiento cervical. Puedes cargar informes para organizar hallazgos confirmados, pero este visor no diagnostica ni mide compresión real.</p>
 
 <div class="grid">
-  <div>
+  <aside class="control-column" aria-label="Controles">
+    <h2>Controles</h2>
+    <section class="card" aria-label="Controles de movimiento" style="margin-top: 18px;">
+      <label style="font-weight:400"><input type="checkbox" id="sed"> Mostrar consideraciones generales sobre hipermovilidad</label>
+
+      
+      <div class="btns" id="pm"><button data-h="rot" aria-pressed="true">Izquierda/derecha: rotación</button><button data-h="tilt" aria-pressed="false">Izquierda/derecha: inclinación</button></div>
+      <div id="pad" tabindex="0" role="group" aria-label="Control de dirección del cuello. Arrastra el punto o usa las flechas del teclado."><i id="dot"></i><b class="pl u">Extensión (arriba)</b><b class="pl d">Flexión (abajo)</b><b class="pl l">Izq.</b><b class="pl r">Der.</b></div>
+      <p class="cap">Arrastra el punto hacia un lado, arriba, abajo o en diagonal. Los deslizadores de abajo se mueven contigo y sirven para ajustar con precisión. El movimiento diagonal combina ejes; no es una articulación adicional.</p>
+      <div id="sl"></div>
+      <p class="cap" id="deg"></p><p class="cap" id="pose" aria-live="polite"></p><p class="cap">Movimientos incluidos: flexión, extensión, rotación axial, inclinación lateral y traslación anterior/retracción. Las diagonales son combinaciones de esos ejes.</p>
+      <div class="lg"><span><i style="background:var(--vago)"></i>Trayecto aproximado del vago</span><span><i style="background:var(--art)"></i>Trayecto aproximado de la arteria vertebral</span><span><i style="background:#d8b84e"></i>Médula</span><span><i style="background:var(--acc)"></i>Músculo y raíces</span><span><i style="background:var(--bone)"></i>Hueso</span></div>
+      <p class="cap">Los círculos numerados señalan carga o tensión (ámbar) y posible estrechamiento o compromiso teórico (rojo). No representan una compresión medida. El número coincide con la lista; la silueta punteada es la posición neutra.</p>
+  </aside>
+  <section class="viz-column" aria-label="Visualización">
     <div class="card sticky-viz">
       <div class="fig-wrap">
         <svg class="fig" id="fig" viewBox="0 0 320 380" role="img" aria-label="Esquema del cuello"></svg>
@@ -132,22 +147,9 @@ h2{font-size:1.15rem;margin:20px 0 8px}
 
       <div class="cap" id="pr" style="color:var(--ink)"></div>
     </div>
-
-    <section class="card" aria-label="Controles de movimiento" style="margin-top: 18px;">
-      <label style="font-weight:400"><input type="checkbox" id="sed"> Mostrar consideraciones generales sobre hipermovilidad</label>
-
-      
-      <div class="btns" id="pm"><button data-h="rot" aria-pressed="true">Izquierda/derecha: rotación</button><button data-h="tilt" aria-pressed="false">Izquierda/derecha: inclinación</button></div>
-      <div id="pad" tabindex="0" role="group" aria-label="Control de dirección del cuello. Arrastra el punto o usa las flechas del teclado."><i id="dot"></i><b class="pl u">Extensión (arriba)</b><b class="pl d">Flexión (abajo)</b><b class="pl l">Izq.</b><b class="pl r">Der.</b></div>
-      <p class="cap">Arrastra el punto hacia un lado, arriba, abajo o en diagonal. Los deslizadores de abajo se mueven contigo y sirven para ajustar con precisión. El movimiento diagonal combina ejes; no es una articulación adicional.</p>
-      <div id="sl"></div>
-      <p class="cap" id="deg"></p><p class="cap" id="pose" aria-live="polite"></p><p class="cap">Movimientos incluidos: flexión, extensión, rotación axial, inclinación lateral y traslación anterior/retracción. Las diagonales son combinaciones de esos ejes.</p>
-      <div class="lg"><span><i style="background:var(--vago)"></i>Trayecto aproximado del vago</span><span><i style="background:var(--art)"></i>Trayecto aproximado de la arteria vertebral</span><span><i style="background:#d8b84e"></i>Médula</span><span><i style="background:var(--acc)"></i>Músculo y raíces</span><span><i style="background:var(--bone)"></i>Hueso</span></div>
-      <p class="cap">Los círculos numerados señalan carga o tensión (ámbar) y posible estrechamiento o compromiso teórico (rojo). No representan una compresión medida. El número coincide con la lista; la silueta punteada es la posición neutra.</p>
-    </section>
-  </div>
-
-  <div>
+  </section>
+  <aside class="info-column" aria-label="Información contextual">
+    <div>
     <div class="info-tabs" role="tablist" aria-label="Información del visor">
       <button type="button" role="tab" aria-selected="true" aria-controls="panel-neck" id="tab-neck" data-panel="panel-neck">Cuello</button>
       <button type="button" role="tab" aria-selected="false" aria-controls="panel-body" id="tab-body" data-panel="panel-body">Mapa corporal</button>
@@ -176,9 +178,8 @@ h2{font-size:1.15rem;margin:20px 0 8px}
         <div id="confirmed-findings"></div>
       </section>
     </section>
-  </div>
+  </aside>
 </div>
-
 <p class="note"><b>Aviso:</b> Este visor es educativo. Los datos cargados solo se muestran después de una revisión y confirmación manual. No mide compresión, no interpreta imágenes como un radiólogo y no sustituye una evaluación médica. No fuerces rangos extremos. Si aparece debilidad nueva o progresiva, dificultad para caminar, pérdida extensa de sensibilidad, desmayo, visión doble persistente o cambios nuevos en vejiga/intestino, busca atención médica.</p>
 </main>
 
